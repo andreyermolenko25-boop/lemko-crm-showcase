@@ -1,0 +1,634 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+/* -------------------------------------------------------------------------- */
+/*  Design tokens                                                             */
+/*  Every surface/colour is a CSS variable so the workspace can be re-themed   */
+/*  at runtime (theme, accent, density, radius) without touching components.  */
+/* -------------------------------------------------------------------------- */
+
+@theme inline {
+  /* --font-body is the member's typeface (Appearance → Advanced); headings use --font-heading. */
+  --font-sans: var(--font-body);
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-canvas: var(--canvas);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-elevated: var(--elevated);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-brand-soft: var(--brand-soft);
+  --color-brand-soft-foreground: var(--brand-soft-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-subtle-foreground: var(--subtle-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-series-1: var(--series-1);
+  --color-series-2: var(--series-2);
+  --color-series-3: var(--series-3);
+  --color-series-4: var(--series-4);
+  --color-series-5: var(--series-5);
+  --color-series-6: var(--series-6);
+  --color-series-7: var(--series-7);
+  --color-series-8: var(--series-8);
+  --color-chart-plan: var(--chart-plan);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --radius-sm: calc(var(--radius) * 0.5);
+  --radius-md: calc(var(--radius) * 0.75);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.25);
+  --radius-2xl: calc(var(--radius) * 1.6);
+}
+
+/*
+ * Type scale for all-day desk work (~60 cm from the screen). 1rem is the
+ * member's "Interface text size" (html font-size, default 16px), so every step
+ * follows that preference. At the default, body/UI text (text-sm) is 16px, the
+ * usual floor for readable body copy and about ISO 9241's 16' minimum
+ * character height at that distance; secondary text (text-xs) is 14px;
+ * text-2xs (12px) is the absolute floor, only for counters, kbd hints and
+ * avatar initials. Never use fixed px font sizes: they ignore the preference.
+ */
+@theme {
+  --text-2xs: 0.75rem;
+  --text-2xs--line-height: 1rem;
+  --text-xs: 0.875rem;
+  --text-xs--line-height: calc(1.25rem * var(--leading));
+  --text-sm: 1rem;
+  --text-sm--line-height: calc(1.5rem * var(--leading));
+  --text-base: 1.125rem;
+  --text-base--line-height: calc(1.75rem * var(--leading));
+  --text-lg: 1.25rem;
+  --text-lg--line-height: calc(1.75rem * var(--leading));
+  --text-xl: 1.375rem;
+  --text-xl--line-height: calc(2rem * var(--leading));
+  /* Emphasis follows the member's "Weight" choice; Geist is variable, so in-between weights render. */
+  --font-weight-medium: var(--weight-medium);
+  --font-weight-semibold: var(--weight-semibold);
+  --font-weight-bold: var(--weight-bold);
+}
+
+:root {
+  /* Accent (brand) — overridden by [data-accent] */
+  --accent-h: 152;
+  --accent-c: 0.15;
+  /* Shade of the brand color, overridden by [data-shade]; light / dark theme lightness. */
+  --shade-l: 0.56;
+  --shade-l-dark: 0.74;
+  --shade-fg-l: 0.99;
+  --shade-text-l: 0.42;
+  --shade-text-l-dark: 0.82;
+  --shade-soft-l: 0.95;
+  --radius: 0.75rem;
+
+  /* Typography — overridden inline (fonts) and by [data-weight] / [data-leading] / [data-tracking] */
+  --font-body: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-body);
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --leading: 1;
+  --tracking: 0em;
+
+  /* Density — overridden by [data-density] */
+  --row-h: 2.75rem;
+  --control-h: 2.25rem;
+  --gap: 1rem;
+  --pad: 1.25rem;
+
+  color-scheme: light;
+  --canvas: oklch(0.975 0.002 260);
+  --background: oklch(0.975 0.002 260);
+  --foreground: oklch(0.2 0.006 260);
+  --card: oklch(1 0 0);
+  --card-foreground: var(--foreground);
+  --elevated: oklch(0.985 0.002 260);
+  --popover: oklch(1 0 0);
+  --popover-foreground: var(--foreground);
+  --primary: oklch(0.21 0.006 260);
+  --primary-foreground: oklch(0.985 0 0);
+  --brand: oklch(var(--shade-l) var(--accent-c) var(--accent-h));
+  --brand-foreground: oklch(var(--shade-fg-l) 0 0);
+  --brand-soft: oklch(var(--shade-soft-l) calc(var(--accent-c) * 0.35) var(--accent-h));
+  --brand-soft-foreground: oklch(var(--shade-text-l) var(--accent-c) var(--accent-h));
+  --secondary: oklch(0.955 0.003 260);
+  --secondary-foreground: oklch(0.25 0.006 260);
+  --muted: oklch(0.955 0.003 260);
+  --muted-foreground: oklch(0.5 0.008 260);
+  --subtle-foreground: oklch(0.64 0.006 260);
+  --accent: oklch(0.95 0.003 260);
+  --accent-foreground: oklch(0.2 0.006 260);
+  --destructive: oklch(0.58 0.21 25);
+  --success: oklch(0.6 0.15 152);
+  --warning: oklch(0.72 0.15 70);
+  --info: oklch(0.6 0.15 250);
+  --border: oklch(0.915 0.004 260);
+  --border-strong: oklch(0.86 0.005 260);
+  --input: oklch(0.9 0.004 260);
+  --ring: oklch(var(--shade-l) var(--accent-c) var(--accent-h) / 45%);
+  /* Categorical series — validated order (CVD-safe adjacent pairs), see dataviz palette */
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --series-4: #eda100;
+  --series-5: #e87ba4;
+  --series-6: #008300;
+  --series-7: #4a3aa7;
+  --series-8: #e34948;
+  /* Ordinal ramp (funnels, tiers): blue 250 → 600 */
+  --ramp-1: #86b6ef;
+  --ramp-2: #5598e7;
+  --ramp-3: #2a78d6;
+  --ramp-4: #256abf;
+  --ramp-5: #1c5cab;
+  --ramp-6: #184f95;
+  --chart-plan: #a3a29c;
+  --chart-1: var(--series-1);
+  --chart-2: var(--series-2);
+  --chart-3: var(--series-3);
+  --chart-4: var(--series-4);
+  --chart-5: var(--series-5);
+  --chart-grid: oklch(0.2 0.006 260 / 8%);
+  /* Same language as the marketing site: white, one ink, hairlines — no hue. */
+  --sidebar: oklch(1 0 0);
+  --sidebar-foreground: oklch(0.25 0 0);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: oklch(0.972 0 0);
+  --sidebar-accent-foreground: var(--foreground);
+  --sidebar-border: oklch(0.935 0 0);
+  --sidebar-ring: var(--ring);
+  --shadow-card: 0 1px 2px oklch(0.2 0.01 260 / 4%);
+  --shadow-pop: 0 1px 2px oklch(0.2 0.01 260 / 6%), 0 12px 32px -8px oklch(0.2 0.01 260 / 16%);
+}
+
+.dark {
+  color-scheme: dark;
+  --canvas: oklch(0.145 0 0);
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.96 0 0);
+  --card: oklch(0.178 0 0);
+  --card-foreground: var(--foreground);
+  --elevated: oklch(0.21 0 0);
+  --popover: oklch(0.2 0 0);
+  --popover-foreground: var(--foreground);
+  --primary: oklch(0.96 0 0);
+  --primary-foreground: oklch(0.17 0 0);
+  --brand: oklch(var(--shade-l-dark) var(--accent-c) var(--accent-h));
+  --brand-foreground: oklch(0.16 0.02 var(--accent-h));
+  --brand-soft: oklch(0.3 calc(var(--accent-c) * 0.45) var(--accent-h) / 55%);
+  --brand-soft-foreground: oklch(var(--shade-text-l-dark) var(--accent-c) var(--accent-h));
+  --secondary: oklch(0.23 0 0);
+  --secondary-foreground: oklch(0.92 0 0);
+  --muted: oklch(0.22 0 0);
+  --muted-foreground: oklch(0.66 0 0);
+  --subtle-foreground: oklch(0.52 0 0);
+  --accent: oklch(0.235 0 0);
+  --accent-foreground: oklch(0.96 0 0);
+  --destructive: oklch(0.68 0.19 22);
+  --success: oklch(0.74 0.15 152);
+  --warning: oklch(0.8 0.14 75);
+  --info: oklch(0.72 0.13 250);
+  --border: oklch(1 0 0 / 8.5%);
+  --border-strong: oklch(1 0 0 / 14%);
+  --input: oklch(1 0 0 / 11%);
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --series-4: #c98500;
+  --series-5: #d55181;
+  --series-6: #008300;
+  --series-7: #9085e9;
+  --series-8: #e66767;
+  --ramp-1: #184f95;
+  --ramp-2: #1c5cab;
+  --ramp-3: #256abf;
+  --ramp-4: #2a78d6;
+  --ramp-5: #3987e5;
+  --ramp-6: #5598e7;
+  --chart-plan: #6b6a65;
+  --chart-grid: oklch(1 0 0 / 7%);
+  --sidebar: oklch(0.13 0 0);
+  --sidebar-foreground: oklch(0.86 0 0);
+  --sidebar-accent: oklch(0.2 0 0);
+  --sidebar-accent-foreground: oklch(0.98 0 0);
+  --sidebar-border: oklch(1 0 0 / 8%);
+  --shadow-card: 0 0 0 0 transparent;
+  --shadow-pop: 0 16px 48px -12px oklch(0 0 0 / 70%);
+}
+
+/* Accent presets (hue + chroma) */
+[data-accent='rose'] { --accent-h: 10; --accent-c: 0.19; }
+[data-accent='red'] { --accent-h: 25; --accent-c: 0.2; }
+[data-accent='orange'] { --accent-h: 50; --accent-c: 0.16; }
+[data-accent='amber'] { --accent-h: 78; --accent-c: 0.15; }
+[data-accent='yellow'] { --accent-h: 100; --accent-c: 0.15; }
+[data-accent='lime'] { --accent-h: 125; --accent-c: 0.17; }
+[data-accent='green'] { --accent-h: 145; --accent-c: 0.17; }
+[data-accent='emerald'] { --accent-h: 152; --accent-c: 0.15; }
+[data-accent='teal'] { --accent-h: 185; --accent-c: 0.12; }
+[data-accent='cyan'] { --accent-h: 205; --accent-c: 0.12; }
+[data-accent='sky'] { --accent-h: 230; --accent-c: 0.13; }
+[data-accent='blue'] { --accent-h: 255; --accent-c: 0.17; }
+[data-accent='indigo'] { --accent-h: 275; --accent-c: 0.18; }
+[data-accent='violet'] { --accent-h: 300; --accent-c: 0.18; }
+[data-accent='purple'] { --accent-h: 312; --accent-c: 0.19; }
+[data-accent='fuchsia'] { --accent-h: 328; --accent-c: 0.2; }
+[data-accent='pink'] { --accent-h: 350; --accent-c: 0.17; }
+[data-accent='graphite'] { --accent-h: 260; --accent-c: 0.01; }
+
+/* Accent shades: brand lightness (light / dark theme), text on brand, tinted text and soft fill */
+[data-shade='lighter'] { --shade-l: 0.7; --shade-l-dark: 0.84; --shade-fg-l: 0.2; --shade-text-l: 0.5; --shade-text-l-dark: 0.9; --shade-soft-l: 0.96; }
+[data-shade='light'] { --shade-l: 0.63; --shade-l-dark: 0.79; --shade-fg-l: 0.2; --shade-text-l: 0.46; --shade-text-l-dark: 0.86; --shade-soft-l: 0.955; }
+[data-shade='base'] { --shade-l: 0.56; --shade-l-dark: 0.74; --shade-fg-l: 0.99; --shade-text-l: 0.42; --shade-text-l-dark: 0.82; --shade-soft-l: 0.95; }
+[data-shade='deep'] { --shade-l: 0.49; --shade-l-dark: 0.68; --shade-fg-l: 0.99; --shade-text-l: 0.38; --shade-text-l-dark: 0.78; --shade-soft-l: 0.94; }
+[data-shade='deeper'] { --shade-l: 0.42; --shade-l-dark: 0.62; --shade-fg-l: 0.99; --shade-text-l: 0.33; --shade-text-l-dark: 0.74; --shade-soft-l: 0.93; }
+
+/* Density presets */
+[data-density='compact'] { --row-h: 2.25rem; --control-h: 2rem; --gap: 0.75rem; --pad: 1rem; }
+[data-density='comfortable'] { --row-h: 2.75rem; --control-h: 2.25rem; --gap: 1rem; --pad: 1.25rem; }
+[data-density='spacious'] { --row-h: 3.25rem; --control-h: 2.5rem; --gap: 1.25rem; --pad: 1.5rem; }
+
+/* Typography (Appearance → Advanced) */
+[data-weight='light'] { --weight-medium: 450; --weight-semibold: 520; --weight-bold: 600; }
+[data-weight='bold'] { --weight-medium: 560; --weight-semibold: 680; --weight-bold: 780; }
+[data-leading='tight'] { --leading: 0.92; }
+[data-leading='relaxed'] { --leading: 1.12; }
+[data-tracking='tight'] { --tracking: -0.012em; }
+[data-tracking='wide'] { --tracking: 0.014em; }
+
+/* Depth: shadow under cards and floating menus */
+[data-shadows='flat'] { --shadow-card: 0 0 0 0 transparent; --shadow-pop: 0 0 0 1px var(--border-strong), 0 4px 12px -6px oklch(0.2 0.01 260 / 10%); }
+[data-shadows='lifted'] {
+  --shadow-card: 0 1px 2px oklch(0.2 0.01 260 / 5%), 0 8px 24px -10px oklch(0.2 0.01 260 / 14%);
+  --shadow-pop: 0 2px 4px oklch(0.2 0.01 260 / 6%), 0 24px 56px -16px oklch(0.2 0.01 260 / 26%);
+}
+.dark[data-shadows='flat'] { --shadow-pop: 0 0 0 1px var(--border-strong); }
+.dark[data-shadows='lifted'] { --shadow-card: 0 10px 28px -14px oklch(0 0 0 / 80%); --shadow-pop: 0 28px 64px -16px oklch(0 0 0 / 85%); }
+
+/* Borders */
+[data-borders='subtle'] { --border: oklch(0.94 0.003 260); --border-strong: oklch(0.9 0.004 260); --sidebar-border: oklch(0.95 0 0); }
+[data-borders='strong'] { --border: oklch(0.87 0.005 260); --border-strong: oklch(0.8 0.006 260); --sidebar-border: oklch(0.89 0 0); }
+.dark[data-borders='subtle'] { --border: oklch(1 0 0 / 6%); --border-strong: oklch(1 0 0 / 10%); --sidebar-border: oklch(1 0 0 / 5.5%); }
+.dark[data-borders='strong'] { --border: oklch(1 0 0 / 13%); --border-strong: oklch(1 0 0 / 20%); --sidebar-border: oklch(1 0 0 / 12%); }
+
+/* Canvas: the page behind cards */
+[data-canvas='plain'] { --canvas: oklch(1 0 0); --background: oklch(1 0 0); }
+[data-canvas='tinted'] {
+  --canvas: oklch(0.972 calc(var(--accent-c) * 0.14) var(--accent-h));
+  --background: oklch(0.972 calc(var(--accent-c) * 0.14) var(--accent-h));
+}
+.dark[data-canvas='plain'] { --canvas: oklch(0.115 0 0); --background: oklch(0.115 0 0); }
+.dark[data-canvas='tinted'] {
+  --canvas: oklch(0.155 calc(var(--accent-c) * 0.16) var(--accent-h));
+  --background: oklch(0.155 calc(var(--accent-c) * 0.16) var(--accent-h));
+}
+
+/* Icon stroke (lucide sets the width as an attribute; CSS wins over it) */
+[data-stroke='thin'] svg.lucide { stroke-width: 1.5; }
+[data-stroke='bold'] svg.lucide { stroke-width: 2.4; }
+
+/* Contrast boost */
+[data-contrast='high'] { --border: oklch(0.82 0.005 260); --muted-foreground: oklch(0.4 0.008 260); }
+.dark[data-contrast='high'] { --border: oklch(1 0 0 / 18%); --muted-foreground: oklch(0.78 0 0); }
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    font-size: var(--font-size, 16px);
+  }
+  body {
+    @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+    font-feature-settings: 'cv11', 'ss01';
+    line-height: calc(1.5 * var(--leading));
+    letter-spacing: var(--tracking);
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-heading);
+  }
+  [data-numerals='tabular'] body {
+    font-variant-numeric: tabular-nums;
+  }
+  ::selection {
+    background: oklch(0.74 var(--accent-c) var(--accent-h) / 30%);
+  }
+}
+
+[data-motion='reduced'] *,
+[data-motion='reduced'] *::before,
+[data-motion='reduced'] *::after {
+  animation-duration: 0.001ms !important;
+  transition-duration: 0.001ms !important;
+}
+
+/*
+ * Navigation rows (sidebar, settings). Hover is drawn by each row itself: a
+ * wash blooms in place under the row and fades as the pointer moves on, the
+ * icon lifts and the label leans in. Nothing travels after the pointer.
+ */
+.nav-row::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--nav-wash, var(--sidebar-accent));
+  opacity: 0;
+  transform: scale(0.94, 0.82);
+  transition:
+    opacity 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+.nav-row .nav-icon {
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.nav-row .nav-label {
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@media (hover: hover) {
+  .nav-row:hover::before {
+    opacity: 1;
+    transform: none;
+  }
+  .nav-row:hover .nav-icon {
+    transform: translateY(-1px) scale(1.1);
+  }
+  .nav-row:hover .nav-label {
+    transform: translateX(2px);
+  }
+}
+.nav-row:focus-visible::before {
+  opacity: 1;
+  transform: none;
+}
+/* A press gives a little; text and icon stay crisp. */
+.nav-row:active::before {
+  transform: scale(0.97);
+  transition-duration: 0.1s;
+}
+.nav-row:active .nav-icon {
+  transform: scale(0.94);
+  transition-duration: 0.1s;
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Surfaces & utilities                                                      */
+/* -------------------------------------------------------------------------- */
+
+@utility surface {
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-card);
+}
+
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@utility scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in oklch, var(--foreground) 18%, transparent) transparent;
+}
+
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Tag / pill colours — one hue variable, light & dark aware */
+.tag {
+  --tag-h: 260;
+  --tag-c: 0.012;
+  background: oklch(0.95 calc(var(--tag-c) * 0.4) var(--tag-h));
+  color: oklch(0.42 var(--tag-c) var(--tag-h));
+  border: 1px solid oklch(0.89 calc(var(--tag-c) * 0.5) var(--tag-h));
+}
+.dark .tag {
+  background: oklch(0.26 calc(var(--tag-c) * 0.35) var(--tag-h) / 70%);
+  color: oklch(0.84 var(--tag-c) var(--tag-h));
+  border-color: oklch(1 0 0 / 7%);
+}
+.tag-dot {
+  --tag-h: 260;
+  --tag-c: 0.012;
+  background: oklch(0.62 var(--tag-c) var(--tag-h));
+}
+[data-color='gray'] { --tag-h: 260; --tag-c: 0.012; }
+[data-color='red'] { --tag-h: 25; --tag-c: 0.17; }
+[data-color='orange'] { --tag-h: 50; --tag-c: 0.15; }
+[data-color='amber'] { --tag-h: 80; --tag-c: 0.14; }
+[data-color='green'] { --tag-h: 150; --tag-c: 0.14; }
+[data-color='teal'] { --tag-h: 185; --tag-c: 0.11; }
+[data-color='blue'] { --tag-h: 250; --tag-c: 0.15; }
+[data-color='indigo'] { --tag-h: 275; --tag-c: 0.16; }
+[data-color='violet'] { --tag-h: 300; --tag-c: 0.16; }
+[data-color='pink'] { --tag-h: 350; --tag-c: 0.15; }
+
+/* Icon tile that follows a colour key — a soft, lit gradient chip with a
+   hairline rim, so object icons read as small app icons in both themes. */
+.icon-tile {
+  --tile-h: var(--tag-h, 260);
+  --tile-c: var(--tag-c, 0.012);
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: linear-gradient(160deg, oklch(0.985 calc(var(--tile-c) * 0.25) var(--tile-h)) 0%, oklch(0.915 calc(var(--tile-c) * 0.75) var(--tile-h)) 100%);
+  color: oklch(0.5 calc(var(--tile-c) * 1.1) var(--tile-h));
+  box-shadow:
+    inset 0 0 0 1px oklch(0.55 var(--tile-c) var(--tile-h) / 16%),
+    inset 0 1px 0 oklch(1 0 0 / 90%),
+    0 1px 2px oklch(0.4 var(--tile-c) var(--tile-h) / 14%),
+    0 4px 12px -6px oklch(0.55 var(--tile-c) var(--tile-h) / 40%);
+}
+.dark .icon-tile {
+  background: linear-gradient(160deg, oklch(0.42 calc(var(--tile-c) * 0.8) var(--tile-h)) 0%, oklch(0.25 calc(var(--tile-c) * 0.45) var(--tile-h)) 100%);
+  color: oklch(0.93 calc(var(--tile-c) * 0.6) var(--tile-h));
+  box-shadow:
+    inset 0 0 0 1px oklch(0.75 var(--tile-c) var(--tile-h) / 22%),
+    inset 0 1px 0 oklch(1 0 0 / 18%),
+    0 1px 2px oklch(0 0 0 / 40%),
+    0 6px 16px -8px oklch(0.6 var(--tile-c) var(--tile-h) / 70%);
+}
+/* Glossy sheen in the top-left corner. */
+.icon-tile::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(120% 90% at 20% 0%, oklch(1 0 0 / 55%), transparent 55%);
+  pointer-events: none;
+}
+.dark .icon-tile::before {
+  background: radial-gradient(120% 90% at 20% 0%, oklch(1 0 0 / 16%), transparent 55%);
+}
+.icon-tile > svg,
+.icon-tile > .tile-glyph > svg {
+  stroke-width: 2.1;
+  filter: drop-shadow(0 1px 0 oklch(1 0 0 / 55%));
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.dark .icon-tile > svg,
+.dark .icon-tile > .tile-glyph > svg {
+  filter: drop-shadow(0 1px 1px oklch(0 0 0 / 35%));
+}
+/* Page-header tile: a soft band of light passes over it now and then. */
+.header-tile::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(105deg, transparent 30%, oklch(1 0 0 / 50%) 50%, transparent 70%);
+  transform: translateX(-130%);
+  animation: tile-sheen 7.2s cubic-bezier(0.65, 0, 0.35, 1) 1.4s infinite;
+}
+.dark .header-tile::after {
+  background: linear-gradient(105deg, transparent 30%, oklch(1 0 0 / 14%) 50%, transparent 70%);
+}
+@keyframes tile-sheen {
+  0% { transform: translateX(-130%); }
+  20%, 100% { transform: translateX(130%); }
+}
+[data-motion='reduced'] .header-tile::after { animation: none; }
+@media (prefers-reduced-motion: reduce) {
+  .header-tile::after { animation: none; }
+}
+:is(a, button, [role='button']):hover .icon-tile > svg {
+  transform: scale(1.1) rotate(-6deg);
+}
+@media (prefers-reduced-motion: reduce) {
+  .icon-tile > svg { transition: none; }
+}
+
+.icon-pick-on { color: oklch(0.5 calc(var(--tag-c) * 1.1) var(--tag-h)); }
+.dark .icon-pick-on { color: oklch(0.93 calc(var(--tag-c) * 0.6) var(--tag-h)); }
+
+/* Dashboard sandbox */
+.dash-guides {
+  background-image: radial-gradient(circle, color-mix(in oklch, var(--foreground) 22%, transparent) 1.25px, transparent 1.75px);
+  background-size: var(--step-x) var(--step-y);
+  background-position: calc(var(--step-x) / 2 - var(--gap) / 2) calc(var(--step-y) / 2 - var(--gap) / 2);
+}
+.dash-cell .panel-body {
+  overflow: auto;
+  scrollbar-width: thin;
+}
+
+/* Recharts — keep chart text on theme tokens */
+.recharts-cartesian-axis-tick-value {
+  fill: var(--subtle-foreground);
+  font-size: 0.875rem;
+}
+.recharts-surface:focus,
+.recharts-wrapper:focus,
+.recharts-sector:focus {
+  outline: none;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@utility rise {
+  animation: rise 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Settings — the marketing site's language: hairline cards without drop     */
+/*  shadows, quiet headers, and content that rises in when a section opens.   */
+/* -------------------------------------------------------------------------- */
+
+.settings-scope .surface {
+  border-radius: calc(var(--radius) * 1.34);
+  box-shadow: none;
+  transition: border-color 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.settings-scope section.surface:hover {
+  border-color: var(--border-strong);
+}
+.settings-scope section.surface > header {
+  padding-block: 1.125rem;
+}
+.settings-scope section.surface > header h2 {
+  letter-spacing: -0.015em;
+}
+
+@keyframes settings-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+    filter: blur(5px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+/* Cards of a settings page rise in one after another; a nested .settings-stagger
+   (a tab inside a page) runs its own sequence instead of moving as one block. */
+.settings-reveal > * > :not(.settings-stagger),
+.settings-stagger > * {
+  animation: settings-rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.settings-reveal > * > :nth-child(2),
+.settings-stagger > :nth-child(2) { animation-delay: 60ms; }
+.settings-reveal > * > :nth-child(3),
+.settings-stagger > :nth-child(3) { animation-delay: 120ms; }
+.settings-reveal > * > :nth-child(4),
+.settings-stagger > :nth-child(4) { animation-delay: 180ms; }
+.settings-reveal > * > :nth-child(5),
+.settings-stagger > :nth-child(5) { animation-delay: 240ms; }
+.settings-reveal > * > :nth-child(n + 6),
+.settings-stagger > :nth-child(n + 6) { animation-delay: 300ms; }
+
+/* Dragging feedback for customizable grids */
+.drop-indicator {
+  outline: 2px dashed oklch(0.74 var(--accent-c) var(--accent-h) / 70%);
+  outline-offset: 3px;
+}

@@ -1,0 +1,31 @@
+# Секреты и локальная конфигурация
+.env
+.env.*
+!.env.example
+
+# Виртуальное окружение
+.venv/
+venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# IDE
+.idea/
+.vscode/
+
+# Логи
+*.log
+
+# Локальные вложения (STORAGE_BACKEND=local)
+var/
+
+# Frontend
+frontend/node_modules/
+frontend/.next/
+frontend/out/

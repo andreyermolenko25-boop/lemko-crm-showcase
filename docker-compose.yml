@@ -1,0 +1,135 @@
+# Lemko CRM (core edition) — всё окружение одной командой:
+#   docker compose up --build
+# Интерфейс: http://localhost:3000   API + Swagger: http://localhost:8000/docs
+# Тесты:     docker compose --profile test run --rm tests
+#
+# Порты меняются переменными WEB_PORT / API_PORT / DB_PORT (например, если 3000 занят).
+
+name: lemko-crm
+
+# Общие настройки API и воркера. Значения по умолчанию рассчитаны на локальный запуск.
+x-backend-env: &backend-env
+  POSTGRES_USER: ${POSTGRES_USER:-lemko_admin}
+  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change_me}
+  POSTGRES_DB: ${POSTGRES_DB:-lemko_crm_db}
+  POSTGRES_HOST: db
+  POSTGRES_PORT: "5432"
+  # Внутри docker-сети TLS у postgres:15 нет.
+  POSTGRES_SSLMODE: disable
+  SECRET_KEY: ${SECRET_KEY:-local_dev_only_change_me_in_production}
+  JWT_ALGORITHM: HS256
+  ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES:-15}
+  DATA_ENCRYPTION_KEY: ${DATA_ENCRYPTION_KEY:-}
+  PUBLIC_APP_URL: ${PUBLIC_APP_URL:-http://localhost:3000}
+  PUBLIC_API_URL: ${PUBLIC_API_URL:-http://localhost:8000}
+  CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000}
+  WEBAUTHN_RP_ID: ${WEBAUTHN_RP_ID:-}
+  SESSION_ABSOLUTE_HOURS: ${SESSION_ABSOLUTE_HOURS:-12}
+  SESSION_BIND_IP: ${SESSION_BIND_IP:-false}
+  # DEBUG=true: Swagger на /docs, письма и SMS (коды входа, приглашения) пишутся в лог воркера.
+  DEBUG: ${DEBUG:-true}
+  COOKIE_SECURE: ${COOKIE_SECURE:-false}
+  NOTIFY_EMAIL_BACKEND: ${NOTIFY_EMAIL_BACKEND:-}
+  SMTP_HOST: ${SMTP_HOST:-}
+  SMTP_PORT: ${SMTP_PORT:-587}
+  SMTP_USERNAME: ${SMTP_USERNAME:-}
+  SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+  SMTP_FROM: ${SMTP_FROM:-}
+  SMS_BACKEND: ${SMS_BACKEND:-}
+  OAUTH_GOOGLE_CLIENT_ID: ${OAUTH_GOOGLE_CLIENT_ID:-}
+  OAUTH_GOOGLE_CLIENT_SECRET: ${OAUTH_GOOGLE_CLIENT_SECRET:-}
+  OAUTH_MICROSOFT_CLIENT_ID: ${OAUTH_MICROSOFT_CLIENT_ID:-}
+  OAUTH_MICROSOFT_CLIENT_SECRET: ${OAUTH_MICROSOFT_CLIENT_SECRET:-}
+  STORAGE_BACKEND: local
+  STORAGE_LOCAL_DIR: /app/var/attachments
+  WEBHOOK_ALLOW_PRIVATE: ${WEBHOOK_ALLOW_PRIVATE:-false}
+
+services:
+  db:
+    image: postgres:15
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-lemko_admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change_me}
+      POSTGRES_DB: ${POSTGRES_DB:-lemko_crm_db}
+    ports:
+      - "127.0.0.1:${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      # Вторая база для pytest (lemko_crm_test) создаётся при первом старте.
+      - ./docker/postgres-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # FastAPI. При старте применяет миграции Alembic.
+  backend:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      <<: *backend-env
+    ports:
+      - "127.0.0.1:${API_PORT:-8000}:8000"
+    volumes:
+      - attachments:/app/var/attachments
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  # Outbox: вебхуки (HMAC), письма, SMS; напоминания о сроках, недельный дайджест.
+  worker:
+    build: .
+    restart: unless-stopped
+    command: ["python", "worker.py"]
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      <<: *backend-env
+    volumes:
+      - attachments:/app/var/attachments
+
+  # Next.js. Браузер ходит только сюда; /api/backend/* проксируется в FastAPI
+  # с JWT из httpOnly-cookie (токен не попадает в JavaScript).
+  frontend:
+    build: ./frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      API_URL: http://backend:8000
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      PUBLIC_APP_URL: ${PUBLIC_APP_URL:-http://localhost:3000}
+      TRUST_PROXY_HOPS: ${TRUST_PROXY_HOPS:-1}
+    ports:
+      - "${WEB_PORT:-3000}:3000"
+
+  # pytest против настоящего PostgreSQL (GiST-исключения и JSONB в SQLite не проверить).
+  tests:
+    profiles: ["test"]
+    build:
+      context: .
+      args:
+        INSTALL_DEV: "true"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      <<: *backend-env
+      TEST_DATABASE_URL: postgresql+psycopg2://${POSTGRES_USER:-lemko_admin}:${POSTGRES_PASSWORD:-change_me}@db:5432/lemko_crm_test?sslmode=disable
+    volumes:
+      - .:/app
+    command: ["pytest", "-q"]
+
+volumes:
+  postgres_data:
+  attachments:

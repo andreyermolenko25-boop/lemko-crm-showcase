@@ -1,0 +1,32 @@
+Lemko CRM — core edition
+Copyright (c) 2026 Andrii Yermolenko. All rights reserved.
+
+This repository is made public for portfolio and evaluation purposes only.
+
+Permission is granted to view and read the source code, and to download and run
+it on your own computer for the sole purpose of evaluating the author's work
+(for example, as part of a hiring process). Forking on GitHub is allowed only
+to the extent required by the GitHub Terms of Service.
+
+Without prior written permission from the copyright holder, you may not:
+
+  1. copy, modify, merge, publish, distribute, sublicense or sell the software
+     or any substantial part of it;
+  2. use the software or any part of it in a product or service, commercial or
+     not, including hosting it for third parties;
+  3. use the names "Lemko" or "Lemko CRM", the logo or the design of the
+     product to identify any other product or service.
+
+No licence, express or implied, is granted under any patent, trademark or other
+intellectual property right other than as stated above.
+
+Third-party libraries used by this project remain under their own licences.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHOR BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+For any other use, contact the author through https://github.com/andreyermolenko25-boop

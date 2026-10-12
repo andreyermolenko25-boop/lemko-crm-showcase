@@ -1,0 +1,10 @@
+# Зависимости для тестов: pip install -r requirements-dev.txt
+#
+# asyncpg не тянем: ядро на psycopg2, а на Windows/Py3.14 asyncpg часто
+# требует MSVC. Схема и get_db в тестах — тот же драйвер, что в проде.
+
+-r requirements.txt
+
+pytest==8.4.2
+pytest-asyncio==1.2.0
+httpx==0.28.1

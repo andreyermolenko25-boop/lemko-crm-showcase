@@ -1,0 +1,27 @@
+# Не попадает в образ бэкенда: фронт, venv, тесты, локальные данные.
+.git
+.github
+.idea
+.vscode
+.claude
+.venv
+venv
+__pycache__
+*.py[cod]
+.pytest_cache
+.mypy_cache
+.ruff_cache
+.env
+.env.*
+!.env.example
+frontend
+var
+attachments_data
+docker-compose*.yml
+Dockerfile
+.dockerignore
+*.md
+tests
+docs
+site-demo
+.pytest_cache

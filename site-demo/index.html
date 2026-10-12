@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Lemko CRM</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<noscript><meta http-equiv="refresh" content="0; url=./en"></noscript>
+<script>
+  // Same choice the site's server made: the language picked in the switcher, else the browser's, else English.
+  (function () {
+    var locales = ["en", "pl", "de", "uk", "ru"];
+    var saved = (document.cookie.match(/(?:^|; )lemko_site_locale=([^;]+)/) || [])[1];
+    var browser = (navigator.languages || [navigator.language]).map(function (l) { return String(l || "").slice(0, 2).toLowerCase(); });
+    var pick = locales.indexOf(saved) > -1 ? saved : browser.filter(function (l) { return locales.indexOf(l) > -1; })[0] || "en";
+    location.replace("./" + pick + location.hash);
+  })();
+</script>
+</head>
+<body><a href="./en">Lemko CRM</a></body>
+</html>

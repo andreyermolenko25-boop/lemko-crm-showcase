@@ -1,0 +1,71 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    name: Backend · migrations + pytest
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: lemko
+          POSTGRES_PASSWORD: lemko
+          POSTGRES_DB: lemko_crm
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U lemko -d lemko_crm"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      POSTGRES_USER: lemko
+      POSTGRES_PASSWORD: lemko
+      POSTGRES_DB: lemko_crm
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: "5432"
+      POSTGRES_SSLMODE: disable
+      SECRET_KEY: ci-only-not-a-secret
+      DEBUG: "true"
+      TEST_DATABASE_URL: postgresql+psycopg2://lemko:lemko@localhost:5432/lemko_crm_test?sslmode=disable
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - run: pip install -r requirements-dev.txt
+      - name: Migration applies to an empty database and matches the models
+        run: |
+          alembic upgrade head
+          alembic check
+          alembic downgrade base
+      - name: Test database
+        run: PGPASSWORD=lemko psql -h localhost -U lemko -d lemko_crm -c "CREATE DATABASE lemko_crm_test"
+      - run: pytest -q
+
+  frontend:
+    name: Frontend · typecheck + build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: frontend/package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: frontend/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm build
