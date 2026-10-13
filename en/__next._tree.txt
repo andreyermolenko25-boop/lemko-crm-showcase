@@ -1,0 +1,4 @@
+:HL["/lemko-crm-showcase/_next/static/chunks/3wk1koeobqjaf.css","style"]
+:HL["/lemko-crm-showcase/_next/static/media/GeistMono_Variable.p.3ms9vq719j3f8.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+:HL["/lemko-crm-showcase/_next/static/media/Geist_Variable-s.p.0mrjj4bg00-he.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+0:{"tree":{"name":"","param":null,"prefetchHints":4176,"slots":{"children":{"name":"locale","param":{"type":"d","key":"en","siblings":[]},"prefetchHints":4144,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":4224,"slots":null}}}}},"staleTime":300,"buildId":"NfQWb5pNMvhlNup4XrH4x"}
