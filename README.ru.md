@@ -10,7 +10,8 @@
 [**Лендинг онлайн**](https://andreyermolenko25-boop.github.io/lemko-crm-showcase/) ·
 [Запуск CRM локально](#запуск-crm-локально) ·
 [Архитектура (EN)](docs/ARCHITECTURE.md) ·
-[English](README.md)
+[English](README.md) ·
+[Po polsku](README.pl.md)
 
 </div>
 

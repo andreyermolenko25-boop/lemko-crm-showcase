@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, type ComponentProps, type ReactNode } from "react"
-import { motion, useReducedMotion, type TargetAndTransition } from "motion/react"
+import type { ComponentProps, ReactNode } from "react"
+import { motion, useReducedMotion } from "motion/react"
 import { ArrowDownRight, ArrowUpRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Icon } from "@/lib/core/icons"
@@ -188,106 +188,31 @@ export function SectionLabel({ children, className }: { children: ReactNode; cla
   return <p className={cn("px-1 text-xs font-semibold uppercase tracking-[0.08em] text-subtle-foreground", className)}>{children}</p>
 }
 
-type Signature = { animate: TargetAndTransition; origin: [number, number] }
-
-const SMOOTH = [0.22, 1, 0.36, 1] as const
-
-/**
- * Each page icon moves in its own way: the alarm clock rings, calendars flip a
- * page, the gear turns, the bell swings, letters drop in; anything else pops.
- */
-const SIGNATURES: Record<string, Signature> = {
-  ring: {
-    animate: { rotate: [0, -18, 16, -14, 11, -7, 4, 0], y: [0, -1, 0, -1, 0, -0.5, 0, 0], transition: { duration: 0.95, ease: "easeInOut" } },
-    origin: [0.5, 0.55],
-  },
-  flip: {
-    animate: { rotateX: [-100, 14, 0], opacity: [0, 1, 1], transition: { duration: 0.7, ease: SMOOTH, times: [0, 0.65, 1] } },
-    origin: [0.5, 0.12],
-  },
-  turn: {
-    animate: { rotate: [-120, 8, 0], transition: { duration: 0.85, ease: SMOOTH, times: [0, 0.75, 1] } },
-    origin: [0.5, 0.5],
-  },
-  swing: {
-    animate: { rotate: [0, 16, -13, 9, -5, 2, 0], transition: { duration: 0.9, ease: "easeInOut" } },
-    origin: [0.5, 0.08],
-  },
-  drop: {
-    animate: { y: [-8, 2, 0], opacity: [0, 1, 1], transition: { duration: 0.55, ease: SMOOTH, times: [0, 0.7, 1] } },
-    origin: [0.5, 0.5],
-  },
-  grow: {
-    animate: { scaleY: [0.2, 1.12, 1], transition: { duration: 0.6, ease: SMOOTH, times: [0, 0.7, 1] } },
-    origin: [0.5, 1],
-  },
-  pop: {
-    animate: { scale: [0.6, 1.14, 1], rotate: [-10, 5, 0], transition: { duration: 0.55, ease: SMOOTH, times: [0, 0.7, 1] } },
-    origin: [0.5, 0.5],
-  },
-}
-
-const ICON_SIGNATURE: Record<string, keyof typeof SIGNATURES> = {
-  alarm: "ring",
-  calendar: "flip",
-  "calendar-check": "flip",
-  settings: "turn",
-  workflow: "turn",
-  bell: "swing",
-  mail: "drop",
-  inbox: "drop",
-  archive: "drop",
-  "chart-line": "grow",
-  "bar-chart": "grow",
-}
-
-/**
- * The page's icon tile. It springs in when the page opens, plays the icon's
- * own motion just after, and again on hover; a band of light passes over it
- * now and then (CSS, .header-tile).
- */
-function HeaderIcon({ icon, color }: { icon: string; color?: ColorKey }) {
+/** The page's icon tile: a quiet fade-in when the page opens, nothing else. */
+function HeaderIcon({ icon }: { icon: string }) {
   const os = useReducedMotion()
   const calm = usePrefs((p) => p.reduceMotion) || !!os
-  const [play, setPlay] = useState(0)
-  const sig = SIGNATURES[ICON_SIGNATURE[icon] ?? "pop"]
-  const tile = "icon-tile header-tile inline-flex size-10 shrink-0 items-center justify-center rounded-xl [&_svg]:size-5"
+  const tile = "icon-tile inline-flex size-10 shrink-0 items-center justify-center rounded-xl [&_svg]:size-5"
   if (calm) {
     return (
-      <span data-color={color} className={tile}>
+      <span className={tile}>
         <Icon name={icon} />
       </span>
     )
   }
   return (
-    <motion.span
-      data-color={color}
-      className={tile}
-      initial={{ opacity: 0, scale: 0.55, rotate: -16 }}
-      animate={{ opacity: 1, scale: 1, rotate: 0 }}
-      transition={{ type: "spring", stiffness: 420, damping: 17, mass: 0.8 }}
-      whileHover={{ scale: 1.06, rotate: -3 }}
-      whileTap={{ scale: 0.94 }}
-      onHoverStart={() => setPlay((n) => n + 1)}
-    >
-      <motion.span
-        key={play}
-        className="tile-glyph flex"
-        style={{ originX: sig.origin[0], originY: sig.origin[1], transformPerspective: 140 }}
-        animate={{ ...sig.animate, transition: { ...sig.animate.transition, delay: play === 0 ? 0.2 : 0 } }}
-      >
-        <Icon name={icon} />
-      </motion.span>
+    <motion.span className={tile} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.25, ease: "easeOut" }}>
+      <Icon name={icon} />
     </motion.span>
   )
 }
 
-export function PageHeader({ title, description, actions, icon, color, children }: { title: ReactNode; description?: ReactNode; actions?: ReactNode; icon?: string; color?: ColorKey; children?: ReactNode }) {
+export function PageHeader({ title, description, actions, icon, children }: { title: ReactNode; description?: ReactNode; actions?: ReactNode; icon?: string; color?: ColorKey; children?: ReactNode }) {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex min-w-0 items-center gap-3">
-          {icon && <HeaderIcon key={icon} icon={icon} color={color} />}
+          {icon && <HeaderIcon key={icon} icon={icon} />}
           <div className="min-w-0">
             <h1 className="truncate text-2xl font-semibold tracking-tight">{title}</h1>
             {description && <p className="mt-0.5 text-sm text-muted-foreground">{description}</p>}

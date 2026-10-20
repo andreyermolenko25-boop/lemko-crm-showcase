@@ -18,6 +18,7 @@ One schema-driven core that reshapes itself for any niche — deals, contacts, b
 [**Live landing page**](https://andreyermolenko25-boop.github.io/lemko-crm-showcase/) ·
 [Run the CRM locally](#run-the-crm-locally) ·
 [Architecture](docs/ARCHITECTURE.md) ·
+[Po polsku](README.pl.md) ·
 [По-русски](README.ru.md)
 
 </div>
